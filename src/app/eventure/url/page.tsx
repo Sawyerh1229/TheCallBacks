@@ -40,7 +40,7 @@ export default function Url() {
                 <Button
                     className="rounded-full bg-black text-white px-6 py-3 font-semibold hover:bg-black/80"
                 >
-                    Show Events
+                    Go to Events
                 </Button>
             </div>
         </div>

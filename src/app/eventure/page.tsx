@@ -56,7 +56,7 @@ export default function Eventure() {
 
             <div className="fixed top-0 left-0 w-full px-6 py-4 bg-white z-50 flex items-center justify-between shadow-sm">
                 <div className="text-xl font-bold">Eventure</div>
-                <div className="bg-white rounded-full px-4 py-1 shadow text-sm font-medium">
+                <div className="text-sm font-medium">
                     {username ? `👋 ${username}` : "Loading..."}
                 </div>
             </div>

@@ -12,7 +12,8 @@ export default function Events() {
     const audioRef = useRef<HTMLAudioElement | null>(null)
     const [isReading, setIsReading] = useState<number | null>(null)
     const ELEVENLABS_API_KEY = process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY || "sk_f6c66ebdd0e8e1808102f379ba71494f64901e93ad692411"
-    const ELEVENLABS_VOICE_ID = "21m00Tcm4TlvDq8ikWAM";
+    const ELEVENLABS_VOICE_ID = "pjcYQlDFKMbcOUp6F5GD"; // Brittney
+    //  "21m00Tcm4TlvDq8ikWAM";
 
     useEffect(() => {
         const stored = localStorage.getItem("fetchedEvents")

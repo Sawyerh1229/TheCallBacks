@@ -8,8 +8,34 @@ import { Button } from "@/components/ui/button"
 export default function Url() {
 
     const [url, setUrl] = useState("")
-  const [userId, setUserId] = useState("")
-  const router = useRouter()
+    const [userId, setUserId] = useState("")
+    const router = useRouter()
+    const [interest, setInterest] = useState("")
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            const {
+                data: { user },
+            } = await supabase.auth.getUser()
+
+            if (user) {
+                setUserId(user.id)
+
+                const { data } = await supabase
+                    .from("UserInterests")
+                    .select("sinterests")
+                    .eq("iuserid", user.id)
+                    .single()
+
+                if (data?.sinterests) {
+                    setInterest(data.sinterests)
+                    console.log("User interest:", data.sinterests) 
+                }
+            }
+        }
+
+        fetchUser()
+    }, [])
 
     const handleSubmit = () => {
         console.log("URL submitted:", url)

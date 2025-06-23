@@ -4,13 +4,14 @@ import React, { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
 
 export default function Url() {
-
     const [url, setUrl] = useState("")
     const [userId, setUserId] = useState("")
     const router = useRouter()
     const [interest, setInterest] = useState("")
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -59,35 +60,37 @@ export default function Url() {
             alert("Please enter a URL and ensure user is loaded")
             return
         }
-
+        setLoading(true)
         // Replace with your backend URL if not running on the same host/port
         const backendUrl = "http://127.0.0.1:8000/extract-events"
 
-        const response = await fetch(backendUrl, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                url: url,
-                interests: interest
+        try {
+            const response = await fetch(backendUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    url: url,
+                    interests: interest
+                })
             })
-        })
 
-        const data = await response.json()
+            const data = await response.json()
 
-        if (data?.events) {
-            localStorage.setItem("fetchedEvents", JSON.stringify(data.events))
-            router.push("/events")
-        } else {
-            alert("No events returned.")
+            if (data?.events) {
+                console.log("Fetched events:", data.events)
+                localStorage.setItem("fetchedEvents", JSON.stringify(data.events))
+                router.push("/events")
+            } else {
+                alert("No events returned.")
+            }
+        } catch (e) {
+            alert("Failed to fetch events.")
+        } finally {
+            setLoading(false)
         }
-
-        // Optionally, route to another page and pass the events as state or via a global store
-        //router.push("/events", { state: { events: data.events } })
     }
-
-
 
     return (
         <div className="space-y-14">
@@ -111,12 +114,20 @@ export default function Url() {
             </div>
 
             {/* Button */}
-            <div className="flex justify-center">
+            <div className="flex justify-center items-center gap-4">
                 <Button
                     onClick={handleGoToEvents}
                     className="rounded-full bg-black text-white px-6 py-3 font-semibold hover:bg-black/80"
+                    disabled={loading}
                 >
-                    Go to Events
+                    {loading ? (
+                        <span className="flex items-center gap-2">
+                            <Loader2 className="animate-spin h-5 w-5" />
+                            Loading...
+                        </span>
+                    ) : (
+                        "Go to Events"
+                    )}
                 </Button>
             </div>
         </div>

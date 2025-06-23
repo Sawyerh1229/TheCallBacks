@@ -1,55 +1,75 @@
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 import os
 import requests
-import csv
-import json
 from dotenv import load_dotenv
+from pydantic import BaseModel
 
 load_dotenv()
-api_key=os.getenv("PERPLEXITY_API_KEY")
+api_key = os.getenv("PERPLEXITY_API_KEY")
 
-url_to_summarize = "https://lu.ma/torontotechweek"
+app = FastAPI()
 
-headers = {
-    "Authorization": f"Bearer {api_key}",
-    "Accept": "application/json",
-    "Content-Type": "application/json"
-}
+class ExtractEventsRequest(BaseModel):
+    url: str
+    interests: str = ""
 
-data = {
-    "model": "sonar",  # or another available model
-    "messages": [
-        {
-            "role": "user",
-            "content": f"Extract all events from this page, under the events list: {url_to_summarize}. For each event, return the name, date, location, and description as a JSON array."
-        }
-    ]
-}
+def extract_events_json(url_to_summarize: str, interests: str):
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+    }
+    prompt = (
+        f"Extract all events from this page: {url_to_summarize}. "
+        f"Based on the user's interests: {interests}, recommend and order the events from most to least relevant. "
+        f"For each event, return an object with the following fields: name, date, time, location, description. "
+        f"Return your answer as a JSON array, with each event as an object. If date and time are together, split them if possible."
+    )
+    data = {
+        "model": "sonar-pro",
+        "messages": [
+            {"role": "user", "content": prompt}
+        ]
+    }
+    response = requests.post(
+        "https://api.perplexity.ai/chat/completions",
+        headers=headers,
+        json=data
+    )
+    if response.status_code != 200:
+        return {"error": response.text}
+    result = response.json()
+    content = result["choices"][0]["message"]["content"]
+    import re, json
+    def extract_json_array(text):
+        match = re.search(r'(\[.*?\])', text, re.DOTALL)
+        if match:
+            try:
+                return json.loads(match.group(1))
+            except Exception:
+                pass
+        try:
+            return json.loads(text)
+        except Exception:
+            try:
+                return json.loads(text.split("```json")[-1].split("```")[-2])
+            except Exception:
+                return None
+    events = extract_json_array(content)
+    if events is None:
+        return {"error": "Could not parse events from LLM response.", "raw": content}
+    return events
 
-response = requests.post(
-    "https://api.perplexity.ai/chat/completions",
-    headers=headers,
-    json=data
-)
-
-result = response.json()
-content = result["choices"][0]["message"]["content"]
-
-print(result)
-
-try:
-    events = json.loads(content)
-except Exception:
-    # If the model returns markdown or text, extract the JSON part
-    events = json.loads(content.split("```json")[-1].split("```")[-2])
-
-with open("EventCSVs/events_perplexity.csv", "w", newline="", encoding="utf-8") as f:
-    writer = csv.DictWriter(f, fieldnames=["event name", "date", "location", "description"])
-    writer.writeheader()
-    for event in events:
-        writer.writerow({
-            "event name": event.get("name", ""),
-            "date": event.get("date", ""),
-            "location": event.get("location", ""),
-            "description": event.get("description", "")
-        })
-print("Events saved to EventCSVs/events_perplexity.csv")
+@app.post("/extract-events")
+async def extract_events_endpoint(body: ExtractEventsRequest):
+    url = body.url
+    interests = body.interests
+    if not url:
+        return JSONResponse(status_code=400, content={"error": "Missing 'url' in request body."})
+    try:
+        events = extract_events_json(url, interests)
+        return JSONResponse(content={"events": events})
+    except Exception as e:
+        print(f"Internal error: {e}")
+        return JSONResponse(status_code=500, content={"error": "Internal server error.", "details": str(e)})

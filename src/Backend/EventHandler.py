@@ -1,8 +1,12 @@
+import os
 import requests
 import csv
 import json
+from dotenv import load_dotenv
 
-api_key = "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"
+load_dotenv()
+api_key=os.getenv("PERPLEXITY_API_KEY")
+
 url_to_summarize = "https://lu.ma/torontotechweek"
 
 headers = {

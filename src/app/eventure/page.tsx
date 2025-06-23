@@ -16,7 +16,9 @@ export default function Eventure() {
     const [username, setUsername] = useState("")
     const [email, setEmail] = useState("")
     const navItemStyle =
-        "px-4 py-2 rounded-full font-medium flex items-center gap-2 transition-colors hover:bg-gray-100"
+        "px-16 py-4 rounded-full font-medium flex items-center gap-2 transition-colors hover:bg-gray-100"
+
+
 
     useEffect(() => {
         const fetchUserAndName = async () => {
@@ -51,13 +53,18 @@ export default function Eventure() {
 
     return (
         <div className="min-h-screen bg-gray-50 pt-24 px-4 sm:px-6 lg:px-8">
-            <div className="fixed top-6 right-6 z-50 bg-white rounded-full px-4 py-1 shadow text-sm font-medium">
-                {username ? `👋 ${username}` : "Loading..."}
+
+            <div className="fixed top-0 left-0 w-full px-6 py-4 bg-white z-50 flex items-center justify-between shadow-sm">
+                <div className="text-xl font-bold">Eventure</div>
+                <div className="bg-white rounded-full px-4 py-1 shadow text-sm font-medium">
+                    {username ? `👋 ${username}` : "Loading..."}
+                </div>
             </div>
+
             {/* Top-Centered Nav */}
-            <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50">
+            <div className="fixed top-[88px] left-1/2 -translate-x-1/2 z-40">
                 <NavigationMenu>
-                    <NavigationMenuList className="bg-white/80 backdrop-blur-sm rounded-full shadow-lg border p-2 gap-2">
+                    <NavigationMenuList className="bg-white/80 backdrop-blur-sm rounded-full shadow-sm gap-2">
                         <NavigationMenuItem>
                             <div
                                 onClick={() => setActiveTab("interest")}
@@ -65,11 +72,11 @@ export default function Eventure() {
                                     navItemStyle +
                                     (activeTab === "interest"
                                         ? " bg-blue-100 text-blue-700"
-                                        : " hover:bg-blue-50 hover:text-blue-700")
+                                        : " hover: cursor-pointer")
                                 }
                             >
                                 <Users className="w-4 h-4" />
-                                Interest
+                                My Interest
                             </div>
                         </NavigationMenuItem>
                         <NavigationMenuItem>
@@ -78,8 +85,8 @@ export default function Eventure() {
                                 className={
                                     navItemStyle +
                                     (activeTab === "url"
-                                        ? " bg-purple-100 text-purple-700"
-                                        : " hover:bg-purple-50 hover:text-purple-700")
+                                        ? " bg-blue-100 text-blue-700"
+                                        : " hover: cursor-pointer")
                                 }
                             >
                                 <LinkIcon className="w-4 h-4" />
@@ -91,7 +98,7 @@ export default function Eventure() {
             </div>
 
             {/* Dynamic Content Below */}
-            <div className="mt-36 max-w-2xl mx-auto">
+            <div className="mt-28 max-w-2xl mx-auto">
                 {activeTab === "interest" && <InterestView />}
                 {activeTab === "url" && <UrlView />}
             </div>

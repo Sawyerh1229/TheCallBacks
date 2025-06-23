@@ -1,3 +1,6 @@
+# Intermediate Data
+/src/Backend/EventCSVs/*.csv
+
 # Dependencies
 node_modules/
 .pnp

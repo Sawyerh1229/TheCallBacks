@@ -3,22 +3,23 @@ import { useEffect, useState } from "react"
 import { ArrowLeft, MapPin, Clock, DollarSign } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-
-const [events, setEvents] = useState<any[]>([])
-
-useEffect(() => {
-  const stored = localStorage.getItem("fetchedEvents")
-  if (stored) {
-    try {
-      setEvents(JSON.parse(stored))
-    } catch (e) {
-      console.error("Failed to parse stored events:", e)
-    }
-  }
-}, [])
+import { useRouter } from "next/navigation"
 
 export default function Events() {
+    const [events, setEvents] = useState<any[]>([])
     const [selectedEvents, setSelectedEvents] = useState<number[]>([])
+    const router = useRouter();
+
+    useEffect(() => {
+        const stored = localStorage.getItem("fetchedEvents")
+        if (stored) {
+            try {
+                setEvents(JSON.parse(stored))
+            } catch (e) {
+                console.error("Failed to parse stored events:", e)
+            }
+        }
+    }, [])
 
     const handleAddEvent = (eventId: number) => {
         if (selectedEvents.includes(eventId)) {
@@ -42,6 +43,7 @@ export default function Events() {
                             variant="outline"
                             size="icon"
                             className="rounded-[3px] border border-gray-300 w-32 h-14"
+                            onClick={() => router.push("/eventure")}
                         >
                             <ArrowLeft className="h-5 w-5" />
                         </Button>

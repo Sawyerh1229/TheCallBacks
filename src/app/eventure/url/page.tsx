@@ -29,7 +29,7 @@ export default function Url() {
 
                 if (data?.sinterests) {
                     setInterest(data.sinterests)
-                    console.log("User interest:", data.sinterests) 
+                    console.log("User interest:", data.sinterests)
                 }
             }
         }
@@ -54,32 +54,38 @@ export default function Url() {
         fetchUser()
     }, [])
 
-const handleGoToEvents = async () => {
-    if (!url || !userId) {
-        alert("Please enter a URL and ensure user is loaded")
-        return
-    }
+    const handleGoToEvents = async () => {
+        if (!url || !userId) {
+            alert("Please enter a URL and ensure user is loaded")
+            return
+        }
 
-    // Replace with your backend URL if not running on the same host/port
-    const backendUrl = "http://127.0.0.1:8000/extract-events"
+        // Replace with your backend URL if not running on the same host/port
+        const backendUrl = "http://127.0.0.1:8000/extract-events"
 
-    const response = await fetch(backendUrl, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            url: url,
-            interests: interest
+        const response = await fetch(backendUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                url: url,
+                interests: interest
+            })
         })
-    })
 
-    const data = await response.json()
-    console.log(data);
+        const data = await response.json()
 
-    // Optionally, route to another page and pass the events as state or via a global store
-    //router.push("/events", { state: { events: data.events } })
-}
+        if (data?.events) {
+            localStorage.setItem("fetchedEvents", JSON.stringify(data.events))
+            router.push("/events")
+        } else {
+            alert("No events returned.")
+        }
+
+        // Optionally, route to another page and pass the events as state or via a global store
+        //router.push("/events", { state: { events: data.events } })
+    }
 
 
 

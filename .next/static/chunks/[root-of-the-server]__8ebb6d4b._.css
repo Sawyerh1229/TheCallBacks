@@ -150,6 +150,7 @@
 
 @layer theme {
   :root, :host {
+    --color-red-500: oklch(63.7% .237 25.331);
     --color-gray-50: oklch(98.5% .002 247.839);
     --color-black: #000;
     --color-white: #fff;
@@ -756,6 +757,10 @@
 
   .text-primary-foreground {
     color: var(--primary-foreground);
+  }
+
+  .text-red-500 {
+    color: var(--color-red-500);
   }
 
   .text-secondary-foreground {

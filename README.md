@@ -7,9 +7,10 @@ TheCallBacks is a web application that allows users to create and manage their e
 ## Tech Stack
 - Next.js
 - TypeScript
+- Python
 - Tailwind CSS
 - OpenAI
 - Supabase
 - ElevenLabs Voice AI
 - Unified.to AI Agents
-
+- Scrapy.org to scrape websites

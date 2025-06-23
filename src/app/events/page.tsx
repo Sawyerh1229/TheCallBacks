@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { ArrowLeft, MapPin, Clock, DollarSign } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -9,6 +9,10 @@ export default function Events() {
     const [events, setEvents] = useState<any[]>([])
     const [selectedEvents, setSelectedEvents] = useState<number[]>([])
     const router = useRouter()
+    const audioRef = useRef<HTMLAudioElement | null>(null)
+    const [isReading, setIsReading] = useState<number | null>(null)
+    const ELEVENLABS_API_KEY = process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY || "sk_f6c66ebdd0e8e1808102f379ba71494f64901e93ad692411"
+    const ELEVENLABS_VOICE_ID = "21m00Tcm4TlvDq8ikWAM";
 
     useEffect(() => {
         const stored = localStorage.getItem("fetchedEvents")
@@ -34,6 +38,44 @@ export default function Events() {
             setSelectedEvents(selectedEvents.filter((id) => id !== eventId))
         } else {
             setSelectedEvents([...selectedEvents, eventId])
+        }
+    }
+
+    const handleReadAloud = async (event: any, idx: number) => {
+        setIsReading(idx)
+        const text = `${event.name}. ${event.date} ${event.time}. Location: ${event.location}. Description: ${event.description}`
+        try {
+            const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE_ID}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "audio/mpeg",
+                    "xi-api-key": ELEVENLABS_API_KEY
+                },
+                body: JSON.stringify({
+                    text,
+                    model_id: "eleven_monolingual_v1",
+                    voice_settings: {
+                        stability: 0.5,
+                        similarity_boost: 0.5
+                    }
+                })
+            })
+            if (!response.ok) throw new Error("TTS failed")
+            const audioBlob = await response.blob()
+            const audioUrl = URL.createObjectURL(audioBlob)
+            if (audioRef.current) {
+                audioRef.current.src = audioUrl
+                audioRef.current.play()
+            } else {
+                const audio = new Audio(audioUrl)
+                audioRef.current = audio
+                audio.play()
+            }
+        } catch (err) {
+            alert("Failed to read event aloud.")
+        } finally {
+            setIsReading(null)
         }
     }
 
@@ -88,12 +130,23 @@ export default function Events() {
 
                                         <p className="text-gray-600 text-sm mb-4 line-clamp-3">{event.description}</p>
 
-                                        <Button
-                                            onClick={() => handleAddEvent(event.id ?? idx)}
-                                            className={`w-full ${isSelected ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"}`}
-                                        >
-                                            {isSelected ? "Added ✓" : "Add Event"}
-                                        </Button>
+                                        {/* Responsive button group: stack on small screens, row on large */}
+                                        <div className="flex flex-col sm:flex-row gap-2 w-full mt-4">
+                                            <Button
+                                                onClick={() => handleAddEvent(event.id ?? idx)}
+                                                className={`w-full sm:w-auto ${isSelected ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"}`}
+                                            >
+                                                {isSelected ? "Added ✓" : "Add Event"}
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                className="w-full sm:w-auto border-gray-400"
+                                                onClick={() => handleReadAloud(event, idx)}
+                                                disabled={isReading === idx}
+                                            >
+                                                {isReading === idx ? "Reading..." : "Read Aloud"}
+                                            </Button>
+                                        </div>
                                     </CardContent>
                                 </Card>
                             )
@@ -132,6 +185,7 @@ export default function Events() {
                     </div>
                 </div>
             </div>
+            <audio ref={audioRef} hidden />
         </div>
     )
 }

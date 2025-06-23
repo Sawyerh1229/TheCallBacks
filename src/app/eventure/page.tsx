@@ -7,6 +7,8 @@ import {
     NavigationMenuItem,
     NavigationMenuList,
 } from "@/components/ui/navigation-menu"
+import InterestView from "./interest/page"
+import UrlView from "./url/page"
 
 export default function Eventure() {
 
@@ -16,36 +18,36 @@ export default function Eventure() {
     const navItemStyle =
         "px-4 py-2 rounded-full font-medium flex items-center gap-2 transition-colors hover:bg-gray-100"
 
-     useEffect(() => {
-    const fetchUserAndName = async () => {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser()
+    useEffect(() => {
+        const fetchUserAndName = async () => {
+            const {
+                data: { user },
+                error: userError,
+            } = await supabase.auth.getUser()
 
-      if (user) {
-        setEmail(user.email || "")
+            if (user) {
+                setEmail(user.email || "")
 
-        const { data, error } = await supabase
-          .from("UserInterests")
-          .select("susername")
-          .eq("iuserid", user.id)
-          .single()
+                const { data, error } = await supabase
+                    .from("UserInterests")
+                    .select("susername")
+                    .eq("iuserid", user.id)
+                    .single()
 
-        if (data?.susername) {
-          setUsername(data.susername)
+                if (data?.susername) {
+                    setUsername(data.susername)
+                }
+
+                // 🔍 Debug: log both
+                console.log("Email:", user.email)
+                console.log("Username:", data?.susername)
+            } else {
+                console.log("No user logged in")
+            }
         }
 
-        // 🔍 Debug: log both
-        console.log("Email:", user.email)
-        console.log("Username:", data?.susername)
-      } else {
-        console.log("No user logged in")
-      }
-    }
-
-    fetchUserAndName()
-  }, [])
+        fetchUserAndName()
+    }, [])
 
     return (
         <div className="min-h-screen bg-gray-50 pt-24 px-4 sm:px-6 lg:px-8">
@@ -90,12 +92,8 @@ export default function Eventure() {
 
             {/* Dynamic Content Below */}
             <div className="mt-36 max-w-2xl mx-auto">
-                {activeTab === "interest" && (
-                    <div>Interest content here</div>
-                )}
-                {activeTab === "url" && (
-                    <div>URL content here</div>
-                )}
+                {activeTab === "interest" && <InterestView />}
+                {activeTab === "url" && <UrlView />}
             </div>
         </div>
     )

@@ -54,14 +54,32 @@ export default function Url() {
         fetchUser()
     }, [])
 
-    const handleGoToEvents = () => {
-        // if (!url || !userId) {
-        //     alert("Please enter a URL and ensure user is loaded")
-        //     return
-        // }
-
-        router.push(`/events?user=${userId}&url=${encodeURIComponent(url)}`)
+const handleGoToEvents = async () => {
+    if (!url || !userId) {
+        alert("Please enter a URL and ensure user is loaded")
+        return
     }
+
+    // Replace with your backend URL if not running on the same host/port
+    const backendUrl = "http://127.0.0.1:8000/extract-events"
+
+    const response = await fetch(backendUrl, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            url: url,
+            interests: interest
+        })
+    })
+
+    const data = await response.json()
+    console.log(data);
+
+    // Optionally, route to another page and pass the events as state or via a global store
+    //router.push("/events", { state: { events: data.events } })
+}
 
 
 

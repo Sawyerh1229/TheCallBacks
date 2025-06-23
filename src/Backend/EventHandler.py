@@ -4,11 +4,20 @@ import os
 import requests
 from dotenv import load_dotenv
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 api_key = os.getenv("PERPLEXITY_API_KEY")
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # or ["*"] for all origins (not recommended for production)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class ExtractEventsRequest(BaseModel):
     url: str

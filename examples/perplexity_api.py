@@ -1,6 +1,11 @@
 import os
+from dotenv import load_dotenv
 from openai import OpenAI
 
+# Load environment variables from .env file
+load_dotenv()
+
+# Get API key from loaded environment variables
 perp_api_key=os.getenv("PERPLEXITY_API_KEY")
 
 client = OpenAI(

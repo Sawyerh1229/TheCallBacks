@@ -49,3 +49,6 @@ for word in transcription.words:
 txt = re.sub(r'\s+', ' ', txt).strip()
 print(txt)
 
+## TODO:
+# https://github.com/NexusRanger/Elevenlabs-Phrase-Recycler
+# ^^^ Learn how to upload .mp3 sound file and convert it to text
